@@ -56,6 +56,7 @@ app.post('/sayHello', (req, res) => {
     const name = req.body.name;
     const age = req.query.age;
     
+    
     res.render('home.ejs', { name, age }); 
     // res.send(`Hello ${name}, your age is ${age}`);
 });
