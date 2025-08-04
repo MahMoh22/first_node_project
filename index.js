@@ -4,6 +4,7 @@ const app = express();
 const cors = require('cors');
 const port = process.env.PORT || 3001;
 const coursesRouter = require('./routes/courses.router');
+const usersRouter = require('./routes/users.router');
 const statusHelper = require('./utils/status.helper');
 const mongoose = require('mongoose');
 const uri = process.env.MONGO_URL;
@@ -16,6 +17,7 @@ app
     .use(cors())    
     .use(express.json())
     .use('/api/courses', coursesRouter)
+    .use('/api/users', usersRouter)
     .all('/*splat', (req, res) => {
         return res.status(404).json({
             status: statusHelper.FAIL,
