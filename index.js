@@ -3,6 +3,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const port = process.env.PORT || 3001;
+const authRouter = require('./routes/auth.router');
 const coursesRouter = require('./routes/courses.router');
 const usersRouter = require('./routes/users.router');
 const statusHelper = require('./utils/status.helper');
@@ -16,6 +17,7 @@ mongoose.connect(uri).then(() => {
 app
     .use(cors())    
     .use(express.json())
+    .use('/api/auth', authRouter)
     .use('/api/courses', coursesRouter)
     .use('/api/users', usersRouter)
     .all('/*splat', (req, res) => {

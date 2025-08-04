@@ -29,7 +29,11 @@ const createCourse = asyncWrapper( async (req, res) => {
     
 });
 const updateCourse = asyncWrapper( async (req, res, next) => {
-        const course = await Course.findByIdAndUpdate(req.params.id, req.body);
+        console.log(req.body);
+        const course = await Course.findByIdAndUpdate(req.params.id, req.body, {
+            new: true,
+            select: '-__v'
+        });
         if (!course) {
             const error = ERRORHelper.create('Course not found', 404,statusHelper.FAIL);
             return next(error);
@@ -54,7 +58,7 @@ const deleteCourse = asyncWrapper( async (req, res, next) => {
 });
 const getCourse = asyncWrapper( async (req, res, next) => {
         const id = req.params.id;
-        const course = await Course.findById(req.params.id);
+        const course = await Course.findById(req.params.id,{"__v":false});
         if (!course) {
             const error = ERRORHelper.create('Course not found', 404,statusHelper.FAIL);
             return next(error);

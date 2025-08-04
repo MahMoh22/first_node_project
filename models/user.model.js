@@ -25,16 +25,16 @@ const userSchema = new Schema({
         minlength: [6, 'Password must be at least 6 characters long'],
 
     },
-    confirmPassword: {
-        type: String,
-        required: true,
-        validate: {
-            validator: function (value) {
-                return value === this.password;
-            },
-            message: 'Passwords do not match'
-        }
-    },
+    // confirmPassword: {
+    //     type: String,
+    //     required: true,
+    //     validate: {
+    //         validator: function (value) {
+    //             return value === this.password;
+    //         },
+    //         message: 'Passwords do not match'
+    //     }
+    // },
     otp: {
         type: String,
         required: false,
