@@ -19,63 +19,104 @@
 // });
 
 
+//////////////////////////////////////////////////////////////////////////
+// const express = require('express');
+// const app = express();
+// const port = 3000;
+// //const bodyParser = require('body-parser');
+// const mongoose = require('mongoose');
+// const uri = 'mongodb+srv://mahmoudmabbass010:fgxC1b4TSiobT4ta@cluster0.jpchtkv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+// mongoose.connect(uri).then(() => {
+//     console.log('Connected to MongoDB');
+// }).catch((error) => {
+//     console.error('Error connecting to MongoDB:', error);
+// });
+// const Article = require('./models/article');
 
+// //app.use(bodyParser.urlencoded({ extended: false }));
+// // app.use(bodyParser.json());
+
+
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
+// app.set('view engine', 'ejs');
+
+
+// app.get('/', (req, res) => {
+//     res.send('Hello World!');
+// });
+// app.post('/sum/:num1/:num2', (req, res) => {
+//     const num1 = parseInt(req.params.num1);
+//     const num2 = parseInt(req.params.num2);
+//     const sum = num1 + num2;
+//     res.send(`The sum of ${num1} and ${num2} is ${sum}`);
+// });
+// app.post('/sayHello', (req, res) => {
+//     console.log(req);
+//     const name = req.body.name;
+//     const age = req.query.age;
+    
+
+//     res.render('home.ejs', { name, age }); 
+//     // res.send(`Hello ${name}, your age is ${age}`);
+// });
+// app.get('/articles', async (req, res) => {
+//     const articles = await Article.find();
+//     res.json(articles);
+//     //res.render('articles', { articles });
+// });
+// app.post('/articles', async (req, res) => {
+//     const article = new Article({
+//         title: req.body.title,
+//         description: req.body.description
+//     });
+//     await article.save();
+//     res.redirect('/');
+// });
+// app.delete('/delete', (req, res) => {
+//     res.send('deleted sucsessfully');
+// });
+// app.listen(port, () => {
+//     console.log(`I'm listening at http://localhost:${port}`);
+// });
+
+
+
+
+
+
+
+require('dotenv').config();
 const express = require('express');
 const app = express();
-const port = 3000;
-//const bodyParser = require('body-parser');
+const cors = require('cors');
+const port = process.env.PORT || 3001;
+const coursesRouter = require('./routes/courses.router');
+const statusHelper = require('./utils/status.helper');
 const mongoose = require('mongoose');
-const uri = 'mongodb+srv://mahmoudmabbass010:fgxC1b4TSiobT4ta@cluster0.jpchtkv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+const uri = process.env.MONGO_URL;
 mongoose.connect(uri).then(() => {
     console.log('Connected to MongoDB');
 }).catch((error) => {
     console.error('Error connecting to MongoDB:', error);
 });
-const Article = require('./models/article');
-
-//app.use(bodyParser.urlencoded({ extended: false }));
-// app.use(bodyParser.json());
-
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.set('view engine', 'ejs');
-
-
-app.get('/', (req, res) => {
-    res.send('Hello World!');
-});
-app.post('/sum/:num1/:num2', (req, res) => {
-    const num1 = parseInt(req.params.num1);
-    const num2 = parseInt(req.params.num2);
-    const sum = num1 + num2;
-    res.send(`The sum of ${num1} and ${num2} is ${sum}`);
-});
-app.post('/sayHello', (req, res) => {
-    console.log(req);
-    const name = req.body.name;
-    const age = req.query.age;
-    
-    
-    res.render('home.ejs', { name, age }); 
-    // res.send(`Hello ${name}, your age is ${age}`);
-});
-app.get('/articles', async (req, res) => {
-    const articles = await Article.find();
-    res.json(articles);
-    //res.render('articles', { articles });
-});
-app.post('/articles', async (req, res) => {
-    const article = new Article({
-        title: req.body.title,
-        description: req.body.description
-    });
-    await article.save();
-    res.redirect('/');
-});
-app.delete('/delete', (req, res) => {
-    res.send('deleted sucsessfully');
-});
-app.listen(port, () => {
-    console.log(`I'm listening at http://localhost:${port}`);
-});
+app
+    .use(cors())    
+    .use(express.json())
+    .use('/api/courses', coursesRouter)
+    .all('/*splat', (req, res) => {
+        return res.status(404).json({
+            status: statusHelper.FAIL,
+            message: 'This Resorce Is Not Available',
+            data: null,
+        });
+    })
+    .use((err, req, res, next) => {
+        return res.status(err.statusCode || 500).json({
+            status: err.statusText || statusHelper.ERROR,
+            message: err.message || 'Internal Server Error',
+            data: null,
+        });
+    })
+    .listen(port, () => console.log(`Listening on port ${port}`))
+    ;
