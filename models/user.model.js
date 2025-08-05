@@ -55,6 +55,10 @@ const userSchema = new Schema({
     exp: {
         type: Date,
         
+    },
+    token: {
+        type: String,
+        required: false,
     }
 });
 

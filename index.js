@@ -9,7 +9,8 @@ const usersRouter = require('./routes/users.router');
 const statusHelper = require('./utils/status.helper');
 const mongoose = require('mongoose');
 const uri = process.env.MONGO_URL;
-mongoose.connect(uri).then(() => {
+mongoose.connect(uri, {serverSelectionTimeoutMS: 30000, // زيادة وقت الانتظار
+    socketTimeoutMS: 45000,}).then(() => {
     console.log('Connected to MongoDB');
 }).catch((error) => {
     console.error('Error connecting to MongoDB:', error);
