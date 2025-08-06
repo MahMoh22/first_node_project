@@ -1,11 +1,18 @@
 const asyncWrapper = require('../middleware/asyncWrapper');
-const User = require('../models/user.model');
+const User = require('../models/User.model');
 const statusHelper = require('../utils/status.helper');
 const ERRORHelper = require('../utils/error.helper');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const {validateCreateUser} = require('../middleware/validator.middleware');
+
 
 const register = asyncWrapper( async (req, res, next) => {
+    const {error} = validateCreateUser(req.body);
+    if (error) {
+        const err = ERRORHelper.create(error.details[0].message, 400,statusHelper.FAIL);
+        return next(err);
+    }
     const userExists = await User.findOne({email: req.body.email});
     if (userExists) {
         const error = ERRORHelper.create('User already exists', 400,statusHelper.FAIL);

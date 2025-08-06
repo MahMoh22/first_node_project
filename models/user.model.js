@@ -5,11 +5,17 @@ const userSchema = new Schema({
     firstName: {
         type: String,
         required: true,
+        minlength: [3, 'First name must be at least 3 characters long'],
+        maxlength: [20, 'First name must be at most 20 characters long'],
+        trim: true
 
     },
     lastName: {
         type: String,
-        required: true
+        required: true,
+        minlength: [3, 'Last name must be at least 3 characters long'],
+        maxlength: [20, 'Last name must be at most 20 characters long'],
+        trim: true
     },
     email: {
         type: String,
@@ -25,16 +31,6 @@ const userSchema = new Schema({
         minlength: [6, 'Password must be at least 6 characters long'],
 
     },
-    // confirmPassword: {
-    //     type: String,
-    //     required: true,
-    //     validate: {
-    //         validator: function (value) {
-    //             return value === this.password;
-    //         },
-    //         message: 'Passwords do not match'
-    //     }
-    // },
     otp: {
         type: String,
         required: false,
@@ -64,6 +60,10 @@ const userSchema = new Schema({
         type: String,
         default: 'profile.png',
     }
-});
+}, 
+{
+    timestamps: true
+}
+);
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.models.User || mongoose.model('User', userSchema);
