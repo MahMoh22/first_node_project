@@ -14,7 +14,7 @@ const register = asyncWrapper( async (req, res, next) => {
     const salt = await bcrypt.genSalt(7);
     req.body.password = await bcrypt.hash(req.body.password, salt);
     const token = jwt.sign({ email: req.body.email ,firstName: req.body.firstName, lastName: req.body.lastName,role: req.body.role}, process.env.JWT_SECRET, { expiresIn: '1d' });
-    const user = await User.create({...req.body, token});
+    const user = await User.create({...req.body, token, avatar: req.file.filename});
 
     res.status(201).json({
         status: statusHelper.SUCCESS, 
@@ -24,7 +24,10 @@ const register = asyncWrapper( async (req, res, next) => {
             email:user.email,
             firstName:user.firstName,
             lastName:user.lastName,
-            token
+            token,
+            role:user.role,
+            avatar:user.avatar
+
         }},
     });
 });

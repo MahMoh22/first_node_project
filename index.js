@@ -3,6 +3,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const port = process.env.PORT || 3001;
+const path = require('path');
 const authRouter = require('./routes/auth.router');
 const coursesRouter = require('./routes/courses.router');
 const usersRouter = require('./routes/users.router');
@@ -15,9 +16,12 @@ mongoose.connect(uri, {serverSelectionTimeoutMS: 30000, // زيادة وقت ا�
 }).catch((error) => {
     console.error('Error connecting to MongoDB:', error);
 });
+
+
 app
     .use(cors())    
     .use(express.json())
+    .use('/api/uploads',express.static(path.join(__dirname, 'uploads')))
     .use('/api/auth', authRouter)
     .use('/api/courses', coursesRouter)
     .use('/api/users', usersRouter)

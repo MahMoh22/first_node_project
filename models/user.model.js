@@ -59,6 +59,10 @@ const userSchema = new Schema({
     token: {
         type: String,
         required: false,
+    },
+    avatar: {
+        type: String,
+        default: 'profile.png',
     }
 });
 
