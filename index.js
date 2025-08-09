@@ -5,7 +5,7 @@ const cors = require('cors');
 const port = process.env.PORT || 3001;
 const path = require('path');
 const authRouter = require('./routes/auth.router');
-const coursesRouter = require('./routes/courses.router');
+const booksRouter = require('./routes/books.router');
 const usersRouter = require('./routes/users.router');
 const profileRouter = require('./routes/profile.router');
 const statusHelper = require('./utils/status.helper');
@@ -24,7 +24,7 @@ app
     .use(express.json())
     .use('/api/uploads',express.static(path.join(__dirname, 'uploads')))
     .use('/api/auth', authRouter)
-    .use('/api/courses', coursesRouter)
+    .use('/api/books', booksRouter)
     .use('/api/users', usersRouter)
     .use('/api/profile', profileRouter)
     .all('/*splat', (req, res) => {
