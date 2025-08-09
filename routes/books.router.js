@@ -7,8 +7,8 @@ const allawTo = require('../middleware/allawTo');
 router.get('/', 
     controller.getAllBooks)
     .post('/', authMiddleware, allawTo('admin'), controller.createBook)
-    .patch('/:id', controller.updateBook)
-    .delete('/:id', controller.deleteBook);
+    .patch('/:id', authMiddleware, allawTo('admin'), controller.updateBook)
+    .delete('/:id', authMiddleware, allawTo('admin'), controller.deleteBook);
 router.get('/:id', controller.getBook);
 
 module.exports = router;
