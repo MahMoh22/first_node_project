@@ -24,7 +24,16 @@ function validateUpdateUser(data) {
     return schema.validate(data);
 }
 
+function validateLogin(data) {
+    const schema = joi.object({
+        email: joi.string().email().required().trim(),
+        password: joi.string().min(8).required().trim(),
+    });
+    return schema.validate(data);
+}
+
 module.exports = {
     validateCreateUser,
-    validateUpdateUser
+    validateUpdateUser,
+    validateLogin
 }

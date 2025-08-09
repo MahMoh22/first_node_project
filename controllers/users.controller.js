@@ -31,8 +31,10 @@ const createUser = asyncWrapper( async (req, res, next) => {
     }
     const salt = await bcrypt.genSalt(7);
     req.body.password = await bcrypt.hash(req.body.password, salt);
-
-    const user = new User({...req.body, avatar: req.file.filename});
+    if(req.file){
+        req.body.avatar = req.file.filename;
+    }
+    const user = new User({...req.body});
     await user.save();
     res.status(201).json({
         status: statusHelper.SUCCESS, 
@@ -62,9 +64,12 @@ const updateUser = asyncWrapper( async (req, res, next) => {
         const salt = await bcrypt.genSalt(7);
         req.body.password = await bcrypt.hash(req.body.password, salt);
     }
+    if(req.file){
+        req.body.avatar = req.file.filename;
+    }
     const user = await User.findByIdAndUpdate(
         req.params.id, 
-        {...req.body, avatar: req.file.filename},
+        {...req.body},
         {new: true,select: '-__v -password -otp -isVerified -exp'});
     if (!user) {
         const error = ERRORHelper.create('User not found', 404,statusHelper.FAIL);
@@ -101,10 +106,73 @@ const getUser = asyncWrapper( async (req, res, next) => {
         data: {user},
      });
 });
+
+const getProfile = asyncWrapper( async (req, res, next) => {
+    const user = await User.findById(req.id,{"__v":false,"password":false,"otp":false,"isVerified":false,"exp":false});
+    if (!user) {
+        const error = ERRORHelper.create('User not found', 404,statusHelper.FAIL);
+        return next(error);
+    }
+    return res.json({ 
+        status: statusHelper.SUCCESS,
+        message: 'User fetched successfully',
+        data: {user},
+     });
+});
+
+const updateProfile = asyncWrapper( async (req, res, next) => {
+    const {error} = validateUpdateUser(req.body);
+    if (error) {
+        const err = ERRORHelper.create(error.details[0].message, 400,statusHelper.FAIL);
+        return next(err);
+    }
+    if(req.body.role){
+        if(req.role !== 'admin'){
+            const error = ERRORHelper.create('Invalid role', 400,statusHelper.FAIL);
+            return next(error);
+        }
+    }
+    if (req.body.password) {
+        const salt = await bcrypt.genSalt(7);
+        req.body.password = await bcrypt.hash(req.body.password, salt);
+    }
+    if(req.file){
+        req.body.avatar = req.file.filename;
+    }
+    const user = await User.findByIdAndUpdate(
+        req.id, 
+            {...req.body},
+            {new: true,select: '-__v -password -otp -isVerified -exp'});
+    if (!user) {
+        const error = ERRORHelper.create('User not found', 404,statusHelper.FAIL);
+        return next(error);
+    }
+    return res.json({ 
+        status: statusHelper.SUCCESS,
+        message: 'User updated successfully',
+        data: {user},
+     });
+});
+const deleteProfile = asyncWrapper(async(req, res, next) => {
+    const user = await User.findByIdAndDelete(req.id);
+    if (!user) {
+        const error = ERRORHelper.create('User not found', 404,statusHelper.FAIL);
+        return next(error);
+    }
+    return res.json({ 
+        status: statusHelper.SUCCESS,
+        message: 'User deleted successfully' ,
+        data: null,
+    });
+});
+
 module.exports = {
     getAllUsers,
     createUser,
     updateUser,
     deleteUser,
-    getUser
+    getUser,
+    getProfile,
+    updateProfile,
+    deleteProfile
 }

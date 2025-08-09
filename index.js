@@ -7,6 +7,7 @@ const path = require('path');
 const authRouter = require('./routes/auth.router');
 const coursesRouter = require('./routes/courses.router');
 const usersRouter = require('./routes/users.router');
+const profileRouter = require('./routes/profile.router');
 const statusHelper = require('./utils/status.helper');
 const mongoose = require('mongoose');
 const uri = process.env.MONGO_URL;
@@ -25,6 +26,7 @@ app
     .use('/api/auth', authRouter)
     .use('/api/courses', coursesRouter)
     .use('/api/users', usersRouter)
+    .use('/api/profile', profileRouter)
     .all('/*splat', (req, res) => {
         return res.status(404).json({
             status: statusHelper.FAIL,

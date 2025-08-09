@@ -1,9 +1,9 @@
-const path = require('path');
 const statusHelper = require('../utils/status.helper');
-
-
-const multer = require('multer');
 const errorHelper = require('../utils/error.helper');
+const multer = require('multer');
+const path = require('path');
+
+
 const diskStorage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, 'uploads');
