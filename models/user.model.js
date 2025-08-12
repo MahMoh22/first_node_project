@@ -52,9 +52,10 @@ const userSchema = new Schema({
         type: Date,
         
     },
-    token: {
+    refreshToken: {
         type: String,
         required: false,
+        default: null,
     },
     avatar: {
         type: String,

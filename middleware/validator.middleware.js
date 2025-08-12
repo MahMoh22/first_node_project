@@ -1,6 +1,9 @@
 
 const joi = require('joi');
 function validateCreateUser(data) {
+    if(data === undefined){
+        data = {};
+    }
     const schema = joi.object({
         firstName: joi.string().required().trim().min(3).max(20),
         lastName: joi.string().required().trim().min(3).max(20),
@@ -13,6 +16,9 @@ function validateCreateUser(data) {
 }
 
 function validateUpdateUser(data) {
+    if(data === undefined){
+        data = {};
+    }
     const schema = joi.object({
         firstName: joi.string().trim().min(3).max(20),
         lastName: joi.string().trim().min(3).max(20),
@@ -25,15 +31,27 @@ function validateUpdateUser(data) {
 }
 
 function validateLogin(data) {
+    if(data === undefined){
+        data = {};
+    }
     const schema = joi.object({
         email: joi.string().email().required().trim(),
         password: joi.string().min(8).required().trim(),
     });
     return schema.validate(data);
 }
-
+function validateRefreshToken(data) {
+    if(data === undefined){
+        data = {};
+    }
+    const schema = joi.object({
+        refreshToken: joi.string().required().trim(),
+    });
+    return schema.validate(data);
+}
 module.exports = {
     validateCreateUser,
     validateUpdateUser,
-    validateLogin
+    validateLogin,
+    validateRefreshToken
 }

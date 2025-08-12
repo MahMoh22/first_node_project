@@ -4,6 +4,7 @@ const statusHelper = require('../utils/status.helper');
 const ERRORHelper = require('../utils/error.helper');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { generateJWT, generateRefreshJWT } = require('../utils/generate.jwt');   
 const {validateCreateUser, validateLogin} = require('../middleware/validator.middleware');
 
 
@@ -24,21 +25,22 @@ const register = asyncWrapper( async (req, res, next) => {
         req.body.avatar = req.file.filename;
     }
     const user = await User.create({...req.body});
-    const token = jwt.sign({id: user._id , email: user.email ,role: user}, process.env.JWT_SECRET, { expiresIn: '1d' });
+    const accessToken = generateJWT(user);
+    const refreshToken = generateRefreshJWT(user);
+    user.refreshToken = refreshToken;
+    await user.save();
+    const userResponse = user.toObject();
+    delete userResponse.password;
+    delete userResponse.__v;
 
     res.status(201).json({
         status: statusHelper.SUCCESS, 
         message: 'User created successfully',
-        data: {"user":{
-            _id:user._id,
-            email:user.email,
-            firstName:user.firstName,
-            lastName:user.lastName,
-            role:user.role,
-            avatar:user.avatar,
-            token
-
-        }},
+        data: 
+        {
+            "user":userResponse,
+            "accessToken":accessToken,
+        },
     });
 });
 
@@ -59,8 +61,9 @@ const login = asyncWrapper( async (req, res, next) => {
         const error = ERRORHelper.create('Invalid credentials', 401,statusHelper.FAIL);
         return next(error);
     }
-    const token = jwt.sign({id: user._id ,email: user.email ,role: user.role}, process.env.JWT_SECRET, { expiresIn: '1h' });
-    user.token = token;
+    const accessToken = generateJWT(user);
+    const refreshToken = generateRefreshJWT(user);
+    user.refreshToken = refreshToken;
     await user.save();
     const userResponse = user.toObject();
     delete userResponse.password;
@@ -68,7 +71,7 @@ const login = asyncWrapper( async (req, res, next) => {
     res.json({
         status: statusHelper.SUCCESS, 
         message: 'User logged in successfully',
-        data: {"user":userResponse},
+        data: {"user":userResponse,"accessToken":accessToken,},
     });
 });
 

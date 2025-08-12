@@ -10,6 +10,7 @@ router.get('/',authMiddleware, allawTo('admin'),
     .post('/',upload.single('avatar'), authMiddleware, allawTo('admin'),controller.createUser)
     .patch('/:id',upload.single('avatar'), authMiddleware, allawTo('admin'),controller.updateUser)
     .delete('/:id', authMiddleware, allawTo('admin'),controller.deleteUser);
-router.get('/:id', authMiddleware, allawTo('admin'), controller.getUser);
+router.get('/:id', authMiddleware, allawTo('admin'), controller.getUser)
+.post('/refresh-token',controller.Refreshtoken);
 
 module.exports = router;

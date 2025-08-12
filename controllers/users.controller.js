@@ -3,7 +3,9 @@ const statusHelper = require('../utils/status.helper');
 const asyncWrapper = require('../middleware/asyncWrapper');
 const ERRORHelper = require('../utils/error.helper');
 const bcrypt = require('bcryptjs');
-const {validateCreateUser, validateUpdateUser} = require('../middleware/validator.middleware');
+const {validateCreateUser, validateUpdateUser, validateRefreshToken} = require('../middleware/validator.middleware');
+const jwt = require('jsonwebtoken');
+const {generateJWT, generateRefreshJWT} = require('../utils/generate.jwt');
 
 
 const getAllUsers = asyncWrapper( async (req, res) => {
@@ -166,6 +168,40 @@ const deleteProfile = asyncWrapper(async(req, res, next) => {
     });
 });
 
+const Refreshtoken = asyncWrapper(async(req, res, next) => {
+    const {error} = validateRefreshToken(req.body);
+    if (error) {
+        const err = ERRORHelper.create(error.details[0].message, 400,statusHelper.FAIL);
+        return next(err);
+    }
+    const { refreshToken } = req.body;
+    if (!refreshToken) {
+        
+        const error = ERRORHelper.create('Refresh token is required', 400,statusHelper.FAIL);
+        return next(error);
+      }
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    const user = await User.findById(decoded.id);
+    if (!user) {
+        const error = ERRORHelper.create('User not found', 404,statusHelper.FAIL);
+        return next(error);
+    }
+    if (user.refreshToken !== refreshToken) {
+        const error = ERRORHelper.create('Invalid refresh token', 401,statusHelper.FAIL);
+        return next(error);
+      }
+    const newAccessToken = generateJWT(user);
+    const newRefreshToken = generateRefreshJWT(user);
+    user.refreshToken = newRefreshToken;
+    await user.save();
+    return res.json({ 
+        status: statusHelper.SUCCESS,
+        message: 'Token refreshed successfully',
+        data: {"accessToken":newAccessToken,"refreshToken":newRefreshToken,"expiresIn":'1h'},
+     });
+
+})
+
 module.exports = {
     getAllUsers,
     createUser,
@@ -174,5 +210,6 @@ module.exports = {
     getUser,
     getProfile,
     updateProfile,
-    deleteProfile
+    deleteProfile,
+    Refreshtoken
 }
